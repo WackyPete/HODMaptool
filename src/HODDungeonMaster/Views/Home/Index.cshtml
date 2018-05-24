@@ -1,0 +1,956 @@
+﻿@using System
+@using System.Drawing
+@using System.Linq
+@using System.Threading.Tasks
+@using HODDungeonMaster.ViewModels.DungeonViews
+@using Newtonsoft.Json
+@using ThePit.Data.Tools
+@using ThePit.Logic
+@using ThePit.Logic.Battles
+@using ThePit.Logic.Dungeons
+@using ThePit.Logic.Fighters
+@{
+    string version = "v1.83";
+    ViewData["Version"] = version;
+    ViewData["Title"] = "Heroes Of Dire - Dungeon Master "+version;
+    var dungeonWorld = ViewData["DungeonWorld"] as DungeonViewModel;
+    var worldCollection = dungeonWorld?.World.DungeonTemplates;
+    var dungeon = ViewData["DungeonMap"] as PitDungeonTemplate;
+    string dungeonReportsUrl = string.Format("http://{0}/hoddm/home/stats", Context.Request.Host);
+    string dungeonLevelReportUrl = string.Format("http://{0}/hoddm/home/stats/{1}", Context.Request.Host, dungeon.TemplateId);
+
+ }
+<div class="container">
+    <div class="Top-section row">
+        <div class="page-header col-xs-3">
+            <h2><span id="header_name">@dungeon.Name</span></h2>
+            <p class="small"><a href="https://spellbook.atlassian.net/wiki/display/HD/Revision+History" alt="Revision History Notes" target="_blank">What's New in @version?</a></p>
+        </div>
+        <div class="dungeonselector col-xs-3">
+            Select Dungeon:
+            <select id="dungeonselect">
+                @{
+                    foreach (var d in worldCollection.OrderBy(n => n.Name))
+                    {
+                        string output = $"{d.TemplateId} - {d.Name} {(d.IsLocked ? "(locked)" : string.Empty)} - (Lvl {d.Level})";
+                        <option value="@d.TemplateId" data-author="@d.Author" data-region="@d.Region">@output</option>
+        }
+    }
+            </select>
+        </div>
+        <div class="dungeonselector col-xs-2">
+            <span class="col-md-7">Filter by Author:</span>
+            <select id="authorselect" class="col-md-5">
+                @{
+                    foreach (var author in worldCollection.OrderBy(l => l.Author).Select(l => l.Author).Distinct())
+                    {
+                        string outAuth = string.IsNullOrEmpty(author) ? "All" : author;
+                        <option value="@author">@outAuth</option>
+                    }
+                }
+            </select>
+            <br/>
+            <span class="col-md-7">Filter by Region:</span>
+            <select id="regionselect" class="col-md-5">
+                <option value="">All</option>
+                @{
+                    foreach (var region in worldCollection.OrderBy(l => l.Region).Select(l => l.Region).Distinct())
+                    {
+                        string outReg = string.IsNullOrEmpty(region) ? "All" : region;
+                        <option value="@region">@outReg</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="dungeon-title col-xs-4">
+            <h3><span id="header_tile_name"></span></h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-2 col-md-2">
+            <div class="leftcolumn">                
+                <div class="panel panel-default Toggles" id="Toggles">
+                    <div id="TogglesHeader" class="panel-heading">
+                        Tools & Settings
+                        <a href="https://spellbook.atlassian.net/wiki/display/HD/Settings" alt="Keyboard Shortcuts" target="_blank" style="float: right;">
+                            <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <div id="TogglesBody" class="panel-body" @*style="display: none;" *@>
+                        <div class="col-md-9">Weather</div>
+                        <div class="col-md-3">
+                            <input id="showWeather" type="checkbox" name="showWeather" value="showWeather" checked="checked" class="toggle-switch">
+                            <label class="onoffswitch-label" for="showWeather"></label>
+                        </div>
+
+                        <div class="col-md-9">Highlight all Spawns</div>
+                        <div class="col-md-3">
+                            <input id="highlightSpawns" type="checkbox" name="highlightSpawns" value="highlightSpawns" class="toggle-switch">
+                            <label for="highlightSpawns" class="onoffswitch-label"></label>
+                        </div>
+
+                        <div class="col-md-9">Tile Names Panel</div>
+                        <div class="col-md-3">
+                            <input id="ShowTileNames" type="checkbox" name="ShowTileNames" value="ShowTileNames" class="toggle-switch">
+                            <label for="ShowTileNames" class="onoffswitch-label"></label>
+                        </div>
+
+                        <div class="col-md-9">Spawn List Panel</div>
+                        <div class="col-md-3">
+                            <input id="ShowSpawnPanel" type="checkbox" name="ShowTileNames" value="ShowSpawnPanel" class="toggle-switch">
+                            <label for="ShowSpawnPanel" class="onoffswitch-label"></label>
+                        </div>
+
+                        <div class="col-md-9">Quick Dropdown Esc</div>
+                        <div class="col-md-3">
+                            <input id="QuickDropdownEscape" type="checkbox" name="QuickDropdownEscape" value="QuickDropdownEscape" class="toggle-switch">
+                            <label for="QuickDropdownEscape" class="onoffswitch-label"></label>
+                        </div>
+
+                        <div class="col-md-9">use WASD</div>
+                        <div class="col-md-3">
+                            <input id="useWASD" type="checkbox" name="useWASD" value="useWASD" class="toggle-switch">
+                            <label for="useWASD" class="onoffswitch-label"></label>
+                        </div>
+
+                        <div class="col-md-9">Draggable Panels</div>
+                        <div class="col-md-3">
+                            <input id="reOrderPanels" type="checkbox" name="reOrderPanels" value="reOrderPanels" class="toggle-switch">
+                            <label for="reOrderPanels" class="onoffswitch-label"></label>
+                        </div>
+
+                        <div class="col-md-9">Statistics</div>
+                        <div class="col-md-4">
+                            <a class="btn btn-default" href="@dungeonReportsUrl" target="_blank">Load Report</a>
+                        </div>                       
+
+                        <div style="display: none;">
+                            <input id="CtrlLock" type="checkbox" name="CtrlLock" value="CtrlLock">Use Ctrl for Move/Delete
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default legend" id="Legend">
+                    <div id="LegendHeader" class="panel-heading">Legend</div>
+                    <div id="LegendBody" class="panel-body" style="display: none;">
+                        <div class="list-group">
+                            <div class="col-md-6"><p class="grid-tile Boat"></p><p>Boat</p></div>
+                            <div class="col-md-6"><p class="grid-tile Castle"></p><p>Castle</p></div>
+                            <div class="col-md-6"><p class="grid-tile Cave"></p><p>Cave</p></div>
+                            <div class="col-md-6"><p class="grid-tile Church"></p><p>Church</p></div>
+                            <div class="col-md-6"><p class="grid-tile CityMarket"></p><p>CityMarket</p></div>
+                            <div class="col-md-6"><p class="grid-tile CityDock"></p><p>CityDock</p></div>
+                            <div class="col-md-6"><p class="grid-tile CityAlley"></p><p>CityAlley</p></div>
+                            <div class="col-md-6"><p class="grid-tile CityGates"></p><p>CityGates</p></div>
+                            <div class="col-md-6"><p class="grid-tile Desert"></p><p>Desert</p></div>
+                            <div class="col-md-6"><p class="grid-tile Dungeon"></p><p>Dungeon</p></div>
+                            <div class="col-md-6"><p class="grid-tile Forest"></p><p>Forest</p></div>
+                            <div class="col-md-6"><p class="grid-tile Grassland"></p><p>Grassland</p></div>
+                            <div class="col-md-6"><p class="grid-tile Graveyard"></p><p>Graveyard</p></div>
+                            <div class="col-md-6"><p class="grid-tile Island"></p><p>Island</p></div>
+                            <div class="col-md-6"><p class="grid-tile Mountain"></p><p>Mountain</p></div>
+                            <div class="col-md-6"><p class="grid-tile Village"></p><p>Village</p></div>
+                            <div class="col-md-6"><p class="grid-tile River"></p><p>River</p></div>
+                            <div class="col-md-6"><p class="grid-tile Road"></p><p>Road</p></div>
+                            <div class="col-md-6"><p class="grid-tile Sewer"></p><p>Sewer</p></div>
+                            <div class="col-md-6"><p class="grid-tile Swamp"></p><p>Swamp</p></div>
+                            <div class="col-md-6"><p class="grid-tile Tavern"></p><p>Tavern</p></div>
+                            <div class="col-md-6"><p class="grid-tile Ocean"></p><p>Ocean</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallArena"></p><p>G.Arena</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallBarracks"></p><p>G.Barracks</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallCasino"></p><p>G.Casino</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallCorridor"></p><p>G.Corridor</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallEntrance"></p><p>G.Entrance</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallForge"></p><p>G.Forge</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallGallery"></p><p>G.Gallery</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallGauntlet"></p><p>G.Gauntlet</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallLibrary"></p><p>G.Library</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallPrison"></p><p>G.Prison</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallReliquary"></p><p>G.Reliquary</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallShrine"></p><p>G.Shrine</p></div>
+                            <div class="col-md-6"><p class="grid-tile GuildHallVault"></p><p>G.Vault</p></div>
+                            <div class="col-md-6"><p class="grid-tile SpawnExample"></p><p>Spawn</p></div>
+                            <div class="col-md-6"><p class="grid-tile CheckpointExample"></p><p>Checkpoint</p></div>
+                            <div class="col-md-6"><p class="grid-tile DestinationExample"></p><p>Destination</p></div>
+                            <div class="col-md-6"><p class="grid-tile PortalExample"></p><p>Portal</p></div>
+                            <div class="col-md-6"><p class="grid-tile RespawnExample"></p><p>Respawn</p></div>
+                            <div class="col-md-6"><p class="grid-tile TreasureExample"></p><p>Valuable</p></div>
+                            <div class="col-md-6"><p class="grid-tile Arena"></p><p>Arena</p></div>
+                            <div class="col-md-6"><p class="grid-tile Barge"></p><p>Barge</p></div>
+                            <div class="col-md-6"><p class="grid-tile Bridge"></p><p>Bridge</p></div>
+                            <div class="col-md-6"><p class="grid-tile Cellar"></p><p>Cellar</p></div>
+                            <div class="col-md-6"><p class="grid-tile CobblestoneRoad"></p><p>C. Road</p></div>
+                            <div class="col-md-6"><p class="grid-tile Crypt"></p><p>Crypt</p></div>
+                            <div class="col-md-6"><p class="grid-tile DirtRoad"></p><p>DirtRoad</p></div>
+                            <div class="col-md-6"><p class="grid-tile Farm"></p><p>Farm</p></div>
+                            <div class="col-md-6"><p class="grid-tile Garden"></p><p>Garden</p></div>
+                            <div class="col-md-6"><p class="grid-tile Heaven"></p><p>Heaven</p></div>
+                            <div class="col-md-6"><p class="grid-tile Hills"></p><p>Hills</p></div>
+                            <div class="col-md-6"><p class="grid-tile Jungle"></p><p>Jungle</p></div>
+                            <div class="col-md-6"><p class="grid-tile Labyrinth"></p><p>Labyrinth</p></div>
+                            <div class="col-md-6"><p class="grid-tile Mines"></p><p>Mines</p></div>
+                            <div class="col-md-6"><p class="grid-tile MountainPass"></p><p>Mtn. Pass</p></div>
+                            <div class="col-md-6"><p class="grid-tile Prison"></p><p>Prison</p></div>
+                            <div class="col-md-6"><p class="grid-tile Shoal"></p><p>Shoal</p></div>
+                            <div class="col-md-6"><p class="grid-tile Shoreline"></p><p>Shoreline</p></div>
+                            <div class="col-md-6"><p class="grid-tile Theater"></p><p>Theater</p></div>
+                            <div class="col-md-6"><p class="grid-tile Underworld"></p><p>Underworld</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="PortalsPanel" class="panel panel-default">
+                    <div id="PortalsHeader" class="panel-heading">Portals</div>
+                    <div id="Portals" class="panel-body">
+                        <div class="list-group">
+                            <!-- Begin list of portals-->
+                            <div class="col-md-9">Destination</div>
+                            <div class="col-md-3">Tile</div>
+                            <div id="portal-list"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="CheckpointsPanel" class="panel panel-default">
+                    <div id="CheckpointsHeader" class="panel-heading">Quick/Respawn Points</div>
+                    <div id="Checkpoints" class="panel-body">
+                        <div class="list-group">
+                            <!-- Begin list of checkpoints-->
+                            <div id="checkpoint-list"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="TileNamesList" class="panel" style="display: none">
+                    <div id="TileNamesHeader" class="panel-heading">Tile Names</div>
+                    <div id="TileNames" class="panel-body"></div>
+                </div>
+                <div id="SpawnListContainer" class="panel" style="display: none">
+                    <div id="SpawnListHeader" class="panel-heading">Spawns</div>
+                    <div id="SpawnList" class="panel-body"></div>
+                </div>                
+            </div>
+        </div>
+    <!-- end of left column -->
+        <div class="dungeongrid col-xs-6">
+            @{
+                for (int row = 15; row >= 0; row--)
+                {
+                    <div class="dungeongrid-row ">
+                        @{
+                            for (int col = 0; col <= 15; col++)
+                            {
+                                string id = $"r{col}c{row}";
+                                <div id="@id" class="grid-tile">
+                                    <div class="tile-icon topleft-icon"></div>
+                                    <div class="tile-icon topright-icon"></div>
+                                    <div class="tile-icon bottomleft-icon"></div>
+                                    <div class="tile-icon bottomright-icon"></div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            }
+            <div class="output"></div>
+        </div>
+    <!-- end of grid -->
+        <div class="col-xs-4 col-md-4">            
+            <div class="inspector">
+                <div class="panel panel-default">
+                    <div id="DungeonPropertiesHeader" class="panel-heading">Dungeon Properties</div>
+                    <div id="DungeonProperties" class="panel-body">
+                        <div class="list-group">
+                            <p class="col-xs-4">Dungeon Name</p>
+                            <p class="col-xs-8 dungeonNameField">
+                                <input id="dungeon_name" type="text" name="dungeon_name" value="@dungeon.Name" maxlength="20"/>
+                            </p>
+                            <p class="col-xs-4">Dungeon Id</p>
+                            <p class="col-xs-8 dungeonIdField">
+                                <input disabled="true" id="dungeon_id" type="text" name="dungeon_id" value="@dungeon.TemplateId" readonly/>
+                            </p>
+                            <p class="col-xs-4">Level</p>
+                            <p class="col-xs-8 dungeonLevelField">
+                                <input id="dungeon_level" type="text" name="dungeon_level" value="@dungeon.Level"/>
+                            </p>
+                            <p class="col-xs-4">Author</p>
+                            <p class="col-xs-8 authorIdField">
+                                <input id="author_id" type="text" name="author_id" value="@dungeon.Author" />
+                            </p>
+                            <p class="col-xs-4">Notes</p>
+                            <p class="col-xs-8 notesField">
+                                <textarea id="notes" type="text" name="notes" value="@dungeon.Notes"></textarea>
+                            </p>
+                            <p class="col-xs-4">Region Name</p>
+                            <p class="col-xs-8 regionField">
+                                <input id="dungeon_region" type="text" name="dungeon_region" value="@dungeon.Region" />
+                            </p>
+                            <p class="col-xs-4">Required Gate Key</p>
+                            <p class="col-xs-8 requiredKeyField">
+                                <input id="dungeon_requiredgatekey" type="text" name="dungeon_requiredgatekey" value="@dungeon.RequiredGateKey"/>
+                            </p>
+                            <p class="col-xs-4">PvP Arena Level</p>
+                            <p class="col-xs-8 pvpArenaLevel">
+                                <select id="pvp_Arena_Level" class="fleft">
+                                    @{
+                                        int b = 0;
+                                        foreach (var dam in Enum.GetValues(typeof(DungeonArenaMode)))
+                                        {
+                                            <option value="@b">@dam</option>
+                                            b++;
+                                        }
+                                    }
+                                </select>
+                            </p>
+
+                            <div class="col-xs-4">
+                                <p class="fleft">Locked</p>
+                                <span class="inline-toggle">
+                                    <input id="is_locked" type="checkbox" name="is_locked" value="@dungeon.IsLocked" class="toggle-switch">
+                                    <label for="is_locked" class="onoffswitch-label"></label>
+                                </span>
+                            </div>
+                            <div class="col-xs-4">
+                                <p class="fleft">Starting Dungeon</p>
+                                <span class="inline-toggle">
+                                    <input id="is_startingdungeon" type="checkbox" name="is_startingdungeon" value="@dungeon.IsStartingDungeon" class="toggle-switch">
+                                    <label for="is_startingdungeon" class="onoffswitch-label"></label>
+                                </span>
+                            </div>
+                            <div class="col-xs-4">
+                                <p class="fleft">Quick Travel</p>
+                                <span class="inline-toggle">
+                                    <input id="is_quicktravel" type="checkbox" name="is_quicktravel" value="@dungeon.AlwaysQuickTravel" class="toggle-switch">
+                                    <label for="is_quicktravel" class="onoffswitch-label"></label>
+                                </span>
+                            </div>
+
+                            <div class="col-xs-12">
+                                <p class="col-xs-4">World Coordinates</p>
+                                <p class="col-xs-8 dungeonXYField">X: <input id="dungeon_map_x" type="text" name="dungeon_map_x" value="@dungeon.MapX"/>Y: <input id="dungeon_map_y" type="text" name="dungeon_map_y" value="@dungeon.MapY"/>
+                                </p>
+                            </div>
+                            <div class="col-xs-12">
+                                <p class="fleft">
+                                    <a id="dungeon_report" class="btn btn-default" href="@dungeonLevelReportUrl" target="_blank">Dungeon Report (@dungeon.TemplateId)</a>
+                                </p>
+                            </div>
+
+
+                            </div>
+                    </div>
+                </div>
+                <div class="panel panel-default" id="WhiteListContainer">
+                    <div id="WhiteListHeader" class="panel-heading">Dungeon White List</div>
+                    <div id="WhiteListBody" class="panel-body" Style="display:none">
+                        <div class="list-group">
+                            <div class="col-xs-12">
+                                <textarea id="WhiteList" type="text" name="WhiteList"></textarea>
+                                <p>*White list is only used when the dungeon is locked</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="GuildListContainer" class="panel panel-default">
+                    <div id="GuildListPanelHeader" class="panel-heading">Guild White List</div>
+                    <div id="GuildListBody" class="panel-body" Style="display:none">
+                        <div class="list-group">
+                            <div class="col-xs-12">
+                                <textarea id="GuildWhiteList" type="text" name="GuildWhiteList"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div id="TileInspectorHeader" class="panel-heading">Tile Inspector</div>
+                    <div id="TileInspector" class="panel-body">
+                        <div class="list-group">
+                            <div class="col-xs-12 col-md-12">
+                                <span id="copy-AllTile" class="copy"></span>
+                                <span id="paste-AllTile" class="paste"></span>
+                                <span id="Nullify-AllTile" class="nullify"></span>
+                            </div>
+                            <p class="col-xs-4 col-md-4">
+                                Tile Name
+                                <span id="randomname" class="glyphicon glyphicon-refresh fleft" style="float: right" aria-hidden="true"></span>
+                            </p>
+                            <div class="col-xs-8 col-md-8 tileNameField">
+
+                                <input id="tile_name" type="text" name="tile_name" class="fleft" spellcheck="true" maxlength="26"/>
+                                <span id="copy-TileName" class="copy"></span>
+                                <span id="paste-TileName" class="paste"></span>
+                            </div>
+                            <!--
+                            <p class="col-xs-5">Tile Location: </p>
+                            <p>X:&nbsp;<span id="tile_x"></span>&nbsp;&nbsp;&nbsp;Y:&nbsp;<span id="tile_y"></span></p>
+
+                            <p class="col-xs-5">Weather:</p>
+                            <p><span id="tile_weather"></span></p>
+                            -->
+                            <p class="col-xs-4 col-md-4">Map Type</p>
+                            <div class="col-xs-8 col-md-8 mapSelect">
+                                <select id="maptype" class="fleft">
+                                    @{
+                                        int i = 0;
+                                        foreach (var map in Enum.GetValues(typeof(MapType)))
+                                        {
+                                            <option value="@i">@map</option>
+                                            i++;
+                                        }
+                                    }
+                                </select>
+                                <span id="copy-MapType" class="copy"></span>
+                                <span id="paste-MapType" class="paste"></span>
+                            </div>
+                            <p class="col-xs-4 col-md-4">Portal Type</p>
+                            <div class="col-xs-8 col-md-8 portalSelect">
+                                <select id="portal_type" class="fleft">
+                                    <option value="0">NULL</option>
+                                    <option value="1">Default</option>
+                                    <!--<option value="2">GuildHall</option>-->
+                                    <option value="3">Teleport</option>
+                                    <option value="4">Stairs up</option>
+                                    <option value="5">Stairs Down</option>
+                                    <option value="6">Road Sign</option>
+                                    <option value="7">Sewer Dome</option>
+                                    <option value="8">Sewer Top</option>
+                                    <option value="9">Hollow Stump</option>
+                                    <option value="10">Pit</option>
+                                    <option value="11">Ladder</option>
+                                    <option value="12">Rope</option>
+                                    <option value="13">Vine</option>
+                                    @*@{
+                                        int port = 0;
+                                        foreach (var ptype in Enum.GetValues(typeof(DungeonPortalType)))
+                                        {
+                                            <option value="@port">@ptype</option>
+                                            port++;
+                                        }
+                                    }*@
+                                </select>
+                                <span id="copy-PortalType" class="copy"></span>
+                                <span id="paste-PortalType" class="paste"></span>
+                            </div>
+                            <p class="col-xs-4">Weather Type<span id="tile_weather">&nbsp;</span></p>
+                            <div class="col-xs-8 weatherSelect">
+                                <select id="weathertype" class="fleft">
+                                    @{
+                                        int j = 0;
+                                        foreach (var weather in Enum.GetValues(typeof(MapWeather)))
+                                        {
+                                            <option value="@j">@weather</option>
+                                            j++;
+                                        }
+                                    }
+                                </select>
+                                <div id="copy-TileWeather" class="copy"></div>
+                                <div id="paste-TileWeather" class="paste"></div>
+                            </div>
+                            <p class="col-xs-5">Walls</p>
+                            <div class="col-xs-7">
+                                <div class="north-btn">
+                                    <input id="tile_north" type="checkbox" name="tile_north" value="tile_north">
+                                    <label for="tile_north"></label>
+                                </div>
+                                <div class="west-btn">
+                                    <input id="tile_west" type="checkbox" name="tile_west" value="tile_west">
+                                    <label for="tile_west"></label>
+                                </div>
+                                <div class="allwalls-btn">
+                                    <input id="tile_all" type="checkbox" name="tile_all" value="tile_all">
+                                    <label for="tile_all"></label>
+                                </div>
+                                <div class="east-btn">
+                                    <input id="tile_east" type="checkbox" name="tile_east" value="tile_east">
+                                    <label for="tile_east"></label>
+                                </div>
+                                <div class="south-btn">
+                                    <input id="tile_south" type="checkbox" name="tile_south" value="tile_south">
+                                    <label for="tile_south"></label>
+                                </div>
+                            </div>
+                            <!--<div class="col-xs-4">
+                                <p class="fleft">Point Type</p>
+                                <span class="inline-toggle">
+                                    <input id="is_checkpoint" type="checkbox" name="is_checkpoint" value="is_checkpoint" class="toggle-switch" />
+                                    <label for="is_checkpoint" class="onoffswitch-label"></label>
+                                </span>
+                            </div>-->                                                                                
+                            <p class="col-xs-4 col-md-4">Point Type</p>
+                            <div class="col-xs-8 col-md-8 pointSelect">
+                                <select id="point_type" class="fleft">
+                                    @{
+                                        int p = 0;
+                                        foreach (var point in Enum.GetValues(typeof(CheckpointType)))
+                                        {
+                                            <option value="@p">@point</option>
+                                            p++;
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <p class="col-md-4">Treasure Room</p>
+                            <div class="col-md-8 pointValue">
+                                <span class="inline-toggle fleft">
+                                    <input id="tile_treasureroom" type="checkbox" name="tile_treasureroom" class="toggle-switch">
+                                    <label for="tile_treasureroom" class="onoffswitch-label"></label>
+                                </span>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div id="NodePortalsHeader" class="panel-heading">Node Portals
+                        <span class="pin">
+                            <input id="pinPortals" name="pinPortals" type="checkbox" value="Pin Portal Panel" />
+                            <label for="pinPortals"></label>
+                        </span>
+                    </div>
+                    <div id="NodePortals" class="panel-body" style="display: none;">
+                        <div class="list-group">
+                            <p class="col-xs-4">Source Dungeon</p>
+                            <p class="col-xs-8"><input id="portal_source_dungeonid" type="text" name="portal_source_dungeonid"/>
+                                <span id="sourceDungeonName"></span>
+                            </p>
+                            <p class="col-xs-4">Source Node X</p>
+                            <p class="col-xs-8"><input id="portal_source_node_x" type="text" name="portal_source_node_x"/></p>
+                            <p class="col-xs-4">Source Node Y</p>
+                            <p class="col-xs-8"><input id="portal_source_node_y" type="text" name="portal_source_node_y"/></p>
+                            <p class="col-xs-4">Target Dungeon</p>
+                            <p class="col-xs-8"><input id="portal_target_dungeonid" type="text" name="portal_target_dungeonid"/>
+                                <span id="targetDungeonName"></span>
+                            </p>
+                            <p class="col-xs-4">Target Node X</p>
+                            <p class="col-xs-8"><input id="portal_target_node_x" type="text" name="portal_target_node_x"/></p>
+                            <p class="col-xs-4">Target Node Y</p>
+                            <p class="col-xs-8"><input id="portal_target_node_y" type="text" name="portal_target_node_y"/></p>
+                            <div class="col-xs-5">
+                                <input id="addportal" class="btn btn-default" name="addportal" type="button" value="Add/Save Portal"/>
+                            </div>
+                            <div class="col-xs-5">
+                                <input id="deleteportal" class="btn btn-default" name="deleteportal" type="button" value="Remove Portal"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div id="SpawnPointsHeader" class="panel-heading">Spawn Point
+                        <span class="pin">
+                            <input id="pinSpawnPanel" name="pinSpawnPanel" type="checkbox" value="Pin Spawn Panel" />
+                            <label for="pinSpawnPanel"></label>
+                        </span></div>
+                    <div id="SpawnPoints" class="panel-body" style="display: none;">
+                        <div class="list-group">
+                            <div class="col-xs-12">
+                                <span id="copy-AllSpawn" class="copy"></span>
+                                <span id="paste-AllSpawn" class="paste"></span>
+                            </div>
+                            <div class="col-xs-6 SpawnOption is_disabled">
+                                <p class="fleft">Disabled &nbsp;</p>
+                                <span class="inline-toggle">
+                                    <input id="spawn_is_disabled" type="checkbox" name="spawn_is_disabled" class="toggle-switch" />
+                                    <label for="spawn_is_disabled" class="onoffswitch-label"></label>
+                                </span>
+                            </div>
+                            <div class="col-xs-6 SpawnOption fighteraitype">
+                                <p class="fleft">Fighter AI* &nbsp;</p>
+                                <select id="spawn_fighteraitype">
+                                    @{
+                                        int a = 0;
+                                        foreach (var ai in Enum.GetValues(typeof(FighterAiType)))
+                                        {
+                                            <option value="@a">@ai</option>
+                                            a++;
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-xs-6 SpawnOption factiontype">
+                                <p class="fleft">Faction*&nbsp;
+                                    <a href="https://spellbook.atlassian.net/wiki/display/HD/NPC+Factions" alt="Factions" target="_blank" class="fleft">
+                                        <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                                    </a>
+                                </p>
+                                <select id="spawn_factiontype">
+                                    @{
+                                        int faction = 0;
+                                        foreach (var fact in Enum.GetValues(typeof(DireFaction)))
+                                        {
+                                            <option value="@faction">@fact</option>
+                                            faction++;
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-xs-6 SpawnOption maxwander_distance">
+                                <p class="fleft">Max Wander Distance* &nbsp;</p>
+                                <select id="spawn_maxwander_distance">
+                                    @{
+                                        for (int dist = 2; dist <= 16; dist++)
+                                        {
+                                            <option value="@dist">@dist</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <!-- Leader -->
+                            <div class="col-xs-12 line"></div>
+                            @*<h5 class="col-xs-12">Leader</h5>*@
+                            <div class="SpawnOption leadername_override">
+                                <p class="col-xs-5">Sqd. Leader Name Override</p>
+                                <p class="col-xs-7">
+                                    <input id="spawn_leadername_override" type="text" name="spawn_leadername_override" placeholder="Enter Name"/>
+                                </p>
+                            </div>
+                            <div class="SpawnOption leaderraceselector">
+                                <p class="col-xs-5">Sqd. Leader Race Type</p>
+                                <div class="col-xs-7">
+                                    <select id="spawn_leaderrace">
+                                        <option value="0">NULL</option>
+                                        <!--<option value="1">Reaper</option>-->
+                                        <!--<option value="2">Imp</option>-->
+                                        <!--<option value="3">Homunculus</option>-->
+                                        <!--<option value="4">Gargoyle</option>-->
+                                        <option value="5">Demon</option>
+                                        <!--<option value="6">Gorgon</option>-->
+                                        <!--<option value="7">Nymph</option>-->
+                                        <option value="8">Succubus</option>
+                                        <option value="9">Zombie</option>
+                                        <!--<option value="10">Ghoul</option>-->
+                                        <!--<option value="11">Wight</option>-->
+                                        <!--<option value="12">Mummy</option>-->
+                                        <option value="13">Skeleton</option>
+                                        <option value="14">Lich</option>
+                                        <option value="15">GiantFrost</option>
+                                        <option value="16">GiantFire</option>
+                                        <option value="17">GiantStone</option>
+                                        <option value="18">GiantStorm</option>
+                                        <option value="19">GiantHill</option>
+                                        <!--<option value="20">TrollIce</option>-->
+                                        <!--<option value="21">TrollFire</option>-->
+                                        <!--<option value="22">TrollStone</option>-->
+                                        <!--<option value="23">TrollStorm</option>-->
+                                        <!--<option value="24">TrollForest</option>-->
+                                        <!--<option value="25">TrollCave</option>-->
+                                        <option value="26">Human</option>
+                                        <option value="27">Cultist</option>
+                                        <!--<option value="28">Barbarian</option>-->
+                                        <!--<option value="29">Dwarf</option>-->
+                                        <!--<option value="30">Halfling</option>-->
+                                        <option value="31">DarkElf</option>
+                                        <!--<option value="32">HighElf</option>-->
+                                        <!--<option value="33">WoodElf</option>-->
+                                        <!--<option value="34">Gnome</option>-->
+                                        <option value="35">Vampire</option>
+                                        <!--<option value="36">Drooge</option>-->
+                                        <!--<option value="37">Goblin</option>-->
+                                        <!--<option value="38">Hobgoblin</option>-->
+                                        <!--<option value="39">Krolv</option>-->
+                                        <!--<option value="40">Kobold</option>-->
+                                        <!--<option value="41">Ogre</option>-->
+                                        <!--<option value="42">Hissling</option>-->
+                                        <!--<option value="43">Dragonite</option>-->
+                                        <!--<option value="44">Orc</option>-->
+                                        <!--<option value="45">Werewolf</option>-->
+                                        <!--<option value="46">Vultare</option>-->
+                                        <!--<option value="47">Minotaur</option>-->
+                                        <!--<option value="48">Cyclops</option>-->
+                                        <!--<option value="49">ElementalEarth</option>-->
+                                        <!--<option value="50">ElementalFire</option>-->
+                                        <!--<option value="51">ElementalPoison</option>-->
+                                        <!--<option value="52">ElementalDisease</option>-->
+                                        <!--<option value="53">ElementalLightning</option>-->
+                                        <!--<option value="54">ElementalCold</option>-->
+                                        <option value="55">GolemEarth</option>
+                                        <option value="56">GolemFire</option>
+                                        <option value="57">GolemStorm</option>
+                                        <option value="58">GolemIce</option>
+                                        <!--<option value="59">GolemVenom</option>-->
+                                        <!--<option value="60">GolemMarble</option>-->
+                                        <!--<option value="61">GolemFlesh</option>-->
+                                        <option value="62">Huppopotamus</option>
+                                        @*@{
+                                            int lr = 0;
+                                            foreach (var lrace in Enum.GetValues(typeof(RaceType)))
+                                            {
+                                                <option value="@lr">@lrace</option>
+                                                lr++;
+                                            }
+                                        }*@
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="SpawnOption leadertypeselector">
+                                <p class="col-xs-5">Sqd. Leader Fighter Type</p>
+                                <div class="col-xs-7">
+                                    <select id="spawn_leadertype">
+                                        @{
+                                            int lt = 0;
+                                            foreach (var ltype in Enum.GetValues(typeof(FighterType)))
+                                            {
+                                                <option value="@lt">@ltype</option>
+                                                lt++;
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="SpawnOption leadergender">
+                                <p class="col-xs-5">Sqd. Leader Gender Override</p>
+                                <p class="col-xs-7">
+                                    <select id="spawn_leadergender">
+                                        <option value="0" selected>NULL</option>
+                                        <option value="1">Male</option>
+                                        <option value="2">Female</option>
+                                    </select>
+                                </p>
+                            </div>
+
+
+                            <!-- Minion -->
+                            <div class="col-xs-12 line"></div>
+                            <div class="SpawnOption minionname_override">
+                                <p class="col-xs-5">Minion Name Override</p>
+                                <p class="col-xs-7">
+                                    <input id="spawn_minionname_override" type="text" name="spawn_minionname_override" placeholder="Enter Name"/>
+                                </p>
+                            </div>
+                            <div class="SpawnOption minionraceselector">
+                                <p class="col-xs-5">Minion Race Type</p>
+                                <p class="col-xs-7">
+                                    <select id="spawn_minionrace">
+                                        <option value="0">NULL</option> 
+                                        <!--<option value="1">Reaper</option>-->
+                                        <!--<option value="2">Imp</option>-->
+                                        <!--<option value="3">Homunculus</option>-->
+                                        <!--<option value="4">Gargoyle</option>-->
+                                        <option value="5">Demon</option>
+                                        <!--<option value="6">Gorgon</option>-->
+                                        <!--<option value="7">Nymph</option>-->
+                                        <option value="8">Succubus</option>
+                                        <option value="9">Zombie</option>
+                                        <!--<option value="10">Ghoul</option>-->
+                                        <!--<option value="11">Wight</option>-->
+                                        <!--<option value="12">Mummy</option>-->
+                                        <option value="13">Skeleton</option>
+                                        <option value="14">Lich</option>
+                                        <option value="15">GiantFrost</option>
+                                        <option value="16">GiantFire</option>
+                                        <option value="17">GiantStone</option>
+                                        <option value="18">GiantStorm</option>
+                                        <option value="19">GiantHill</option>  
+                                        <!--<option value="20">TrollIce</option>-->
+                                        <!--<option value="21">TrollFire</option>-->
+                                        <!--<option value="22">TrollStone</option>-->
+                                        <!--<option value="23">TrollStorm</option>-->
+                                        <!--<option value="24">TrollForest</option>-->
+                                        <!--<option value="25">TrollCave</option>-->
+                                        <option value="26">Human</option>
+                                        <option value="27">Cultist</option>
+                                        <!--<option value="28">Barbarian</option>-->
+                                        <!--<option value="29">Dwarf</option>-->
+                                        <!--<option value="30">Halfling</option>-->
+                                        <option value="31">DarkElf</option>
+                                        <!--<option value="32">HighElf</option>-->
+                                        <!--<option value="33">WoodElf</option>-->
+                                        <!--<option value="34">Gnome</option>-->
+                                        <option value="35">Vampire</option>
+                                        <!--<option value="36">Drooge</option>-->
+                                        <!--<option value="37">Goblin</option>-->
+                                        <!--<option value="38">Hobgoblin</option>-->
+                                        <!--<option value="39">Krolv</option>-->
+                                        <!--<option value="40">Kobold</option>-->
+                                        <!--<option value="41">Ogre</option>-->
+                                        <!--<option value="42">Hissling</option>-->
+                                        <!--<option value="43">Dragonite</option>-->
+                                        <!--<option value="44">Orc</option>-->
+                                        <!--<option value="45">Werewolf</option>-->
+                                        <!--<option value="46">Vultare</option>-->
+                                        <!--<option value="47">Minotaur</option>-->
+                                        <!--<option value="48">Cyclops</option>-->
+                                        <!--<option value="49">ElementalEarth</option>-->
+                                        <!--<option value="50">ElementalFire</option>-->
+                                        <!--<option value="51">ElementalPoison</option>-->
+                                        <!--<option value="52">ElementalDisease</option>-->
+                                        <!--<option value="53">ElementalLightning</option>-->
+                                        <!--<option value="54">ElementalCold</option>-->
+                                        <option value="55">GolemEarth</option>
+                                        <option value="56">GolemFire</option>
+                                        <option value="57">GolemStorm</option>
+                                        <option value="58">GolemIce</option>
+                                        <!--<option value="59">GolemVenom</option>-->
+                                        <!--<option value="60">GolemMarble</option>-->
+                                        <!--<option value="61">GolemFlesh</option>-->
+                                        <option value="62">Huppopotamus</option>
+                                        @*@{
+                                            int mr = 0;
+                                            foreach (var mrace in Enum.GetValues(typeof(RaceType)))
+                                            {
+                                                <option value="@mr">@mrace</option>
+                                                mr++;
+                                            }
+                                        }*@
+                                    </select>
+                                </p>
+                            </div>
+                            <div class="SpawnOption miniongender">
+                                <p class="col-xs-5">Minion Gender Override</p>
+                                <p class="col-xs-7">
+                                    <select id="spawn_miniongender">
+                                        <option value="0" selected>NULL</option>
+                                        <option value="1">Male</option>
+                                        <option value="2">Female</option>
+                                    </select>
+                                </p>
+                            </div>
+                            <div class="col-xs-12 line"></div>
+
+                            <div class="SpawnOption kill_title">
+                                <p class="col-xs-5">Kill Title</p>
+                                <p class="col-xs-7">
+                                    <input id="spawn_kill_title" type="text" name="spawn_kill_title" placeholder="Enter title reward" />
+                                </p>
+                            </div>     
+                            
+                            <div class="SpawnOption kill_gatekey">
+                                <p class="col-xs-5">Kill GateKey</p>
+                                <p class="col-xs-7">
+                                    <input id="spawn_kill_gatekey" type="text" name="spawn_kill_gatekey" placeholder="Enter gatekey name" />
+                                </p>
+                            </div>                       
+
+                            <div class="col-xs-5">
+                                <input id="add_spawnpoint" class="btn btn-default" name="add_spawnpoint" type="button" value="Add/Save SpawnPoint"/>
+                            </div>
+                            <div class="col-xs-5">
+                                <input id="delete_spawnpoint" class="btn btn-default" name="delete_spawnpoint" type="button" value="Remove Spawnpoint"/>
+                            </div>
+                            
+                        </div>
+                        <p class="col-xs-12"><small>*required field</small></p>
+                    </div>
+                </div>
+                <!--<div class="panel panel-default EventsContainer">
+                    <div id="EventsHeader" class="panel-heading">Events</div>
+                    <div id="Events" class="panel-body" style="display: none;">
+                            <div class="col-xs-4">
+                                <p class="fleft">XP Bonus:</p>
+                                <span class="inline-toggle">
+                                    <input id="event_xp" type="checkbox" name="event_xp" class="toggle-switch">
+                                    <label for="event_xp" class="onoffswitch-label"></label>
+                                </span>
+                            </div>
+                            <div class="col-xs-4">
+                                <p class="fleft">Loot Bonus:</p>
+                                <span class="inline-toggle">
+                                    <input id="event_loot" type="checkbox" name="event_loot" class="toggle-switch">
+                                    <label for="event_loot" class="onoffswitch-label"></label>
+                                </span>
+                            </div>
+                            <div class="col-xs-4">
+                                <p class="fleft">Guild Bonus:</p>
+                                <span class="inline-toggle">
+                                    <input id="event_guild" type="checkbox" name="event_guild" class="toggle-switch">
+                                    <label for="event_guild" class="onoffswitch-label"></label>
+                                </span>
+                            </div>     
+                        </div>
+                </div>-->
+                <div class="panel panel-default CommandsContainer">
+                    <div id="CommandsHeader" class="panel-heading">Commands</div>
+                    <div id="Commands" class="panel-body" style="display: none;">
+                        <div class="list-group">
+                            <p class="col-xs-5">Input Server Command&nbsp;
+                            <a href="https://spellbook.atlassian.net/wiki/display/HD/Server+Commands" alt="HOD Server Commands" target="_blank">
+                                <span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                            </a> 
+                                <select id="server_commands">
+                                    <option value="">Select a Command</option>
+                                    <option disabled="disabled">------</option>
+                                    <option value="Send">Send Message</option>                                    
+                                    <option value="DmMsg">Dungeon Master Message</option> 
+                                    <option value="EventMsg">Event Message</option> 
+                                </select>
+                            </p>
+                            <p class="col-xs-12"><!-- Single Line Server Commands-->
+                                <input id="server_command" type="text" name="server_command" placeholder="Add command here" size="70"/>
+                            </p>
+                            <p class="col-xs-5">Server</p>
+                            <p class="col-xs-7">
+                                <select id="server_command_serverid">
+                                    <option value="99">All</option>
+                                    <option value="0" selected>0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="2">3</option>
+                                </select>
+                            </p>
+                            <div class="col-xs-4">
+                                <input id="sendcommand" class="btn btn-default" name="sendcommand" type="button" value="Submit"/>
+                                <input id="clearcommand" class="btn btn-default" name="clearcommand" type="button" value="Clear" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div id="FunctionsHeader" class="panel-heading">Functions</div>
+                    <div id="Functions" class="panel-body">
+                        <div class="list-group">
+                            <div class="col-xs-4">
+                                <input id="save" class="btn btn-default" name="save" type="button" value="Save"/>
+                            </div>
+                            <div class="col-xs-4">
+                                <input id="confirm_publish" class="btn btn-default" name="confirm_publish" type="button" value="Publish" />
+                            </div>
+                            <div class="col-xs-4">
+                                <input id="confirm_newdungeon" class="btn btn-default" name="confirm_newdungeon" type="button" value="Create Dungeon" data-toggle="modal" data-target="#newDungeonModal" />
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="display: none;">
+    <input type="button" id="generatecsv" value="Generate"/>
+    <a id="Export" style="display: none;">Export</a>
+</div>
+<script>
+    var dungeonJSON = @Html.Raw(JsonConvert.SerializeObject(dungeon));
+</script>
+    <!-- Modal -->
+<div class="modal fade" id="msgModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <!--<button type="button" class="btn btn-default" data-dismiss="modal">X</button>-->
+                <div class="server_message"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Modal -->
+<div class="modal fade" id="newDungeonModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel1">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel1">Dungeon Master Super</h4>
+            </div>
+            <div class="modal-body">
+                <input id="new_auth_username" type="text" name="auth_username" placeholder="Username"/>
+                <input id="new_auth_password" type="password" name="auth_password" placeholder="Password"/>
+                <input id="auth_newdungeon" class="btn btn-default" name="auth_newdungeon" type="button" value="Create New Dungeon"/>
+                <input id="auth_copydungeon" class="btn btn-default" name="auth_copydungeon" type="button" value="Duplicate Dungeon" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

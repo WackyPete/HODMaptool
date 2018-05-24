@@ -1,0 +1,38 @@
+﻿@using System
+@using System.Drawing
+@using System.Linq
+@using System.Threading.Tasks
+@using HODDungeonMaster.ViewModels.ServerViews;
+@using Newtonsoft.Json
+@using ThePit.Data.Tools
+@using ThePit.Logic
+@using ThePit.Logic.Battles
+@using ThePit.Logic.Dungeons
+@using ThePit.Logic.Fighters
+@{    
+    ViewData["Title"] = "Heroes Of Dire - Server";    
+}
+<script>
+    $(function () {
+
+        $('#upload').click(function (e) {
+
+            $.get('./Server/PushHodAssets').done(function (data) {
+                alert('Complete');
+            });
+            //$.get('./Home/RandomTileName', { maptype: maptypeval, weathertype: weathertypeval }).done(function (data) {
+           // $('#tile_name').val(data);
+           // SaveRoom(selectedNode);
+        //});
+
+        });
+
+
+
+    });
+</script>
+<div class="container">
+    <div class="row">       
+        <a id="upload" href="#" >Upload to the BLOB</a>
+    </div>
+</div>

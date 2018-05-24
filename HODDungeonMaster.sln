@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B7D7373D-A076-433B-8501-41EAA9337DB9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D14D4FFC-6CB5-40FA-AF69-919585846556}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "HODDungeonMaster", "src\HODDungeonMaster\HODDungeonMaster.xproj", "{97E48FFC-040F-4D78-9D25-58095BA124B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97E48FFC-040F-4D78-9D25-58095BA124B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97E48FFC-040F-4D78-9D25-58095BA124B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97E48FFC-040F-4D78-9D25-58095BA124B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97E48FFC-040F-4D78-9D25-58095BA124B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{97E48FFC-040F-4D78-9D25-58095BA124B0} = {B7D7373D-A076-433B-8501-41EAA9337DB9}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,16 @@
+﻿{
+  "HodAppSettings": {
+    "HodAccounts": [
+      {
+        "UserName": "megaweapon",
+        "Password": "Password1",
+        "AccessLevel": "Administrator"
+      },
+      {
+        "UserName": "odachi",
+        "Password": "Password1",
+        "AccessLevel": "Author"
+      }
+    ]
+  }
+}

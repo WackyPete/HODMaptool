@@ -1,0 +1,720 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 5px;
+    background-image: url('../../hoddm/images/map-background.png');
+}
+.navbar , .navbar .container {
+    height: 50px;
+}
+.container > hr {
+    /*display: none;*/
+}
+.navbar-collapse { float: right;padding: 10px;}
+label.control-label { color: #FFF;}
+#UserName, #Password {
+    width: auto;
+}
+
+@media (min-width: 1200px) {
+    .container {
+        width: 1660px !important;
+    }
+}
+
+@media (max-width: 1200px) {
+    .container {
+        margin:0 !important;
+        width: 100% !important;
+        padding:2px !important;
+    }
+    .leftcolumn { display: none;}
+    .dungeongrid { min-width: 670px !important;min-height: 670px !important;}
+    .dungeongrid-row .grid-tile { width: 40px !important;height: 40px !important;}
+    .dungeongrid-row .grid-tile {background-size:40px !important;}    
+    .dungeongrid-row .grid-tile-inner { width: 15px !important;height: 15px !important;}
+    .dungeongrid-row .grid-tile-inner {background-size:15px !important;}
+    .container .row > .col-md-4 {width: 300px;}
+}
+
+#header_name, h2, h3, h4, h5, h2 span { color: #FFF;}
+.header_tile_name, .dungeonselector  {color: #999;height:50px}
+.dungeonselector option { color: #000;}
+
+.ui-state-highlight { height: 40px}
+
+.fleft{ float: left;}
+.page-header { border-bottom: none;}
+.page-header, .page-header h2, .dungeon-title h3 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.page-header, .dungeeonselector, .dungeon-title{
+    height: 30px;
+    margin: 0;
+}
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    margin-top: 10px !important;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Carousel */
+.carousel-caption {
+    z-index: 10 !important;
+}
+
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+    .carousel-caption {
+        z-index: 10 !important;
+    }
+}
+.tile-number { text-align: center;}
+
+.grid {
+    border: 1px solid #ccc;
+    border-width: 1px 0 0 1px;
+}
+
+.grid div {
+    border: 1px solid #ccc;
+    border-width: 0 1px 1px 0;
+    float: left;
+}
+/* SWITCHES*/
+input.toggle-switch + label {
+    padding: 2px;
+    width: 100%;
+    height: 15px;
+    background-color: #dddddd;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    -ms-border-radius: 30px;
+    -o-border-radius: 30px;
+    border-radius: 30px;
+}
+input.toggle-switch + label:before, input.toggle-switch + label:after {
+    display: block;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    bottom: 1px;
+    content: "";
+}
+input.toggle-switch + label:before {
+  right: 1px;
+  background-color: #f1f1f1;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  -ms-border-radius: 30px;
+  -o-border-radius: 30px;
+  border-radius: 30px;
+  -webkit-transition: background 0.4s;
+  -moz-transition: background 0.4s;
+  -o-transition: background 0.4s;
+  transition: background 0.4s;
+}
+input.toggle-switch + label:after {
+  width: 50%;
+  background-color: #fff;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  -ms-border-radius: 100%;
+  -o-border-radius: 100%;
+  border-radius: 100%;
+  -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  -webkit-transition: margin 0.4s;
+  -moz-transition: margin 0.4s;
+  -o-transition: margin 0.4s;
+  transition: margin 0.4s;
+}
+input.toggle-switch:checked + label:before {
+  background-color: #8ce196;
+}
+input.toggle-switch:checked + label:after {
+  margin-left: 50%;
+}
+.toggle-switch {
+  position: absolute;
+  visibility: hidden;
+}
+.toggle-switch + label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+span.inline-toggle {
+    margin-top: 3px;
+    float: right;
+}
+span.inline-toggle, span.inline-toggle label {
+    width: 25px !important;
+}
+
+
+/* INSPECTOR */
+.col-xs-6.SpawnOption {
+    min-height: 24px;
+}
+select#spawn_factiontype {
+    width: 155px;
+}
+.leftcolumn, .inspector {
+    background-color: #ccc;
+    border: 1px solid;
+    border-radius: 5px;
+}
+
+.scroll.inspector, .scroll.leftcolumn {    
+    max-height: 800px;
+    overflow-y: scroll;
+}
+
+input[disabled].toggle-switch, input[disabled].toggle-switch+label {
+    background-color: #444 !important;
+}
+input[disabled].toggle-switch + label:before {
+    background-color: #444;
+}
+input[disabled].toggle-switch + label:after {
+    background-color: #777;
+}
+
+.inspector li {list-style:none;}
+.panel-heading { font-weight: bold;}
+.panel {
+    margin-bottom: 0px;
+}
+.list-group {
+    padding-left: 0;
+    margin-bottom: 0;
+}
+.panel-body {
+    padding: 5px 0 0 0;
+    background-color: #ccc;
+}
+#Functions, #NodePortals{
+    padding: 5px 0 10px;
+}
+
+#weathertype {
+    float: left;
+}
+#tile_name, #maptype, #portal_type, #weathertype {
+    width: 174px;
+}
+
+#PortalsPanel .panel-row input:first-child,
+#SpawnList .col-md-6 {
+    font-size: 12px;
+    padding: 2px 0 !important;
+    text-align: left !important;
+}
+
+#DungeonProperties  .list-group > p,
+#NodePortals .list-group > p,
+#Legend p
+{
+    margin-bottom: 2px !important;
+}
+
+#TileInspector > p,
+#TileInspector > div {
+    margin-bottom: 5px !important;
+}
+
+
+#DungeonProperties .col-xs-8,
+#NodePortals .col-xs-8,
+.tileNameField, 
+.mapSelect, 
+.portalSelect, 
+.weatherSelect,
+.pointSelect,
+.pointValue,
+.pointSelect
+{
+    padding: 0 5px 0 0;
+    margin-bottom: 10px;
+    min-height: 20px;
+}
+
+.pointValue .fleft { float: left !important;}
+
+#portal-list .panel-row,
+#TileNames .panel-row,
+#checkpoint-list .panel-row, 
+#SpawnList .panel-row {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+#TileNames > div:nth-child(even),
+#portal-list > div:nth-child(even),
+#checkpoint-list > div:nth-child(even),
+#SpawnList .panel-row:nth-child(even)
+{
+    background-color: #a7a7a7;
+}
+
+#portal-list .btn,
+#TileNames .col-md-9, 
+#TileNames .btn,
+#checkpoint-list .btn,
+#SpawnList .btn {
+    padding: 0px;
+    margin: 0;
+}
+#portal-list .col-md-4,
+#checkpoint-list .col-md-8,
+#SpawnList .col-md-6,
+#SpawnList .col-md-3 {
+    padding:0 5px;
+    margin: 0;
+    overflow: hidden;
+}
+
+#tile_weather {
+    width: 20px;
+    height: 20px;
+    float: right;
+    background-size: 100%;
+}
+.copy, .paste, .nullify {
+    width: 20px;
+    height: 20px;
+    background-size: 20px;
+    float: left;
+}
+#Nullify-AllTile { float:right;}
+
+.copy{background-image: url('../../hoddm/images/icons/copy.png');}
+.paste{background-image: url('../../hoddm/images/icons/paste.png');}
+.nullify {background-image: url('../../hoddm/images/icons/nullify.png');}
+
+#tile_weather.Normal {background-image: none;}
+#tile_weather.Wet {background-image: url('../../hoddm/images/icons/Wet.png');}
+#tile_weather.Cold {background-image: url('../../hoddm/images/icons/Cold.png');}
+#tile_weather.Battle {background-image: url('../../hoddm/images/icons/Battle.png');}
+
+/* GRID */
+ #Legend .grid-tile {
+     width: 25px;
+     height: 25px;
+     float: left;
+     border: 0;
+     background-size: 25px;
+     white-space: nowrap;
+ }
+ #Legend p {
+     height: 25px;
+ }
+ #Legend .col-md-6 {
+     padding-left: 0 !important;
+ }
+ .selected { background-color: #373737;color: #FFF; }
+
+
+ north-btn, .south-btn, .east-btn, .allwalls-btn, .west-btn {height: 32px;}
+.north-btn, .south-btn{ margin-left: 32px;}
+.east-btn, .allwalls-btn, .west-btn {float: left;}
+
+ .north-btn label, .south-btn label, .east-btn label, .allwalls-btn label, .west-btn label {
+     height: 32px;
+     width: 32px;
+     display: block;
+     margin-bottom: 0;
+ }
+    
+.north-btn input,
+.south-btn input,
+.east-btn input,
+.west-btn input,
+.allwalls-btn input { display: none; }
+
+.north-btn input[type="checkbox"] + label:before,
+.south-btn input[type="checkbox"] + label:before,
+.east-btn input[type="checkbox"] + label:before, 
+.west-btn input[type="checkbox"] + label:before,
+.allwalls-btn input[type="checkbox"] + label:before {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    display: block;
+    width: 32px;
+    height: 32px;
+}
+
+.south-btn {
+    margin-top: 33px;
+}
+.north-btn input[type="checkbox"] + label:before {
+    content: url('../../hoddm/images/icons/north-on.png');
+}
+.north-btn input[type="checkbox"]:checked + label:before{
+    content: url('../../hoddm/images/icons/north-off.png');
+}
+
+.south-btn input[type="checkbox"] + label:before {
+    content: url('../../hoddm/images/icons/south-on.png');
+}
+.south-btn input[type="checkbox"]:checked + label:before{
+    content: url('../../hoddm/images/icons/south-off.png');
+}
+
+.east-btn input[type="checkbox"]  + label:before{
+    content: url('../../hoddm/images/icons/east-on.png');
+}
+.east-btn input[type="checkbox"]:checked + label:before{
+    content: url('../../hoddm/images/icons/east-off.png');
+}
+
+.west-btn input[type="checkbox"]  + label:before{
+    content: url('../../hoddm/images/icons/west-on.png');
+}
+.west-btn input[type="checkbox"]:checked + label:before{
+    content: url('../../hoddm/images/icons/west-off.png');
+}
+.allwalls-btn input[type="checkbox"]  + label:before{
+    content: url('../../hoddm/images/icons/all-on.png');
+}
+.allwalls-btn input[type="checkbox"]:checked + label:before{
+    content: url('../../hoddm/images/icons/all-off.png');
+}
+
+/* ------------------- PIN --------------------- */
+.pin { float: right;}
+.pin input{ display: none; }
+
+.pin input[type="checkbox"] + label:before {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    appearance: none;
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.pin input[type="checkbox"]  + label:before{
+    content: url('../../hoddm/images/icons/pin.png');
+}
+.pin input[type="checkbox"]:checked + label:before{
+    content: url('../../hoddm/images/icons/pinned.png');
+}
+/* ---------------------------------------------- */
+
+.isTilePortal.false {
+    display: none;
+}
+
+#SpawnPoints h5 { color: #000000;font-weight: bold;}
+.SpawnOption p {
+    margin: 0;
+}
+
+.col-xs-12.line {
+    /*border-bottom: 1px dashed black;*/
+    margin: 5px;
+}
+.fullw,
+#notes,
+textarea#WhiteList, 
+textarea#GuildWhiteList, 
+#server_command { width: 100%;max-width: 100%;}
+
+input[disabled], select[disabled]
+{
+    background-color:#D3D3D3;
+}
+
+@-webkit-keyframes radiusGlow {
+    0% {
+        background-color: transparent;
+    }
+    20% {
+        background-color: #d23c1e;
+    }
+    60% {
+        background-color: #d23c1e;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+@keyframes radiusGlow {
+    0% {
+        background-color: transparent;
+    }
+    40% {
+        background-color: #FF0000;
+    }
+    100% {
+        background-color: #FF0000;
+    }
+}
+
+.radius {
+    background-blend-mode: hard-light;
+    
+    -webkit-animation: radiusGlow 2200ms infinite ease-in-out;
+    -moz-animation: radiusGlow 2200ms infinite ease-in-out;
+    -o-animation: radiusGlow 2200ms infinite ease-in-out;
+    animation: radiusGlow 2200ms infinite ease-in-out;
+    -webkit-animation-direction: alternate;
+    animation-direction: alternate;
+}
+
+.Allradius {
+    background-color: rgba(255, 38, 38, 0.65) !important;
+    background-blend-mode: hard-light;
+} 
+@-webkit-keyframes flash {
+    0% {
+        background-color: transparent;
+        opacity:1;
+    }
+    50% {
+        background-color: greenyellow;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+@keyframes flash {
+    0% {
+        background-color: transparent;
+        opacity:1;
+    }
+    50% {
+        background-color: greenyellow;
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+.row .grid-tile.active {
+    background-blend-mode: hard-light;
+    -webkit-animation: flash 700ms infinite ease-in-out;
+    -moz-animation: flash 700ms infinite ease-in-out;
+    -o-animation: flash 700ms infinite ease-in-out;
+    animation: flash 700ms infinite ease-in-out;
+} 
+/* grid parent */
+.dungeongrid {
+    /* =(tile width + margin) x grid size*/
+    min-width: 830px;
+    min-height: 800px;
+    /*background-color:#999;*/
+}
+
+/*  global styles for all tiles on map */
+.dungeongrid-row {
+    float:left;
+}
+.dungeongrid-row div{
+    float:left;
+    width:50px;
+    height:50px;
+    /*margin:1px;*/
+}
+.grid-tile {
+    background-color:#3e3939;
+    background-size: 50px 50px;
+
+    background-origin: border-box;
+
+    border-style: inset !important;
+
+    border-top:3px solid #FFF;
+    border-bottom:3px solid #FFF;
+    border-right:3px solid #FFF;
+    border-left:3px solid #FFF;
+}
+.SpawnExample,  .CheckpointExample, .DestinationExample, .PortalExample, .RespawnExample, .TreasureExample
+  {
+    background-color: transparent;
+}
+
+.dungeongrid-row > div:first-child {
+    border-left-style: outset !important;
+}
+.dungeongrid > div:first-child > div {
+    border-top-style: outset !important;
+}
+/*  Walls  */
+.grid-tile.north{border-top:3px solid transparent;}
+.grid-tile.south{border-bottom:3px solid transparent;}
+.grid-tile.east{border-right:3px solid transparent;}  
+.grid-tile.west{border-left:3px solid transparent;}
+
+/*  Backgrounds  */
+.grid-tile.NULL{
+    background-color:#000;
+    background-image: url('../../hoddm/images/tiles/bg-fog-undiscovered.png');
+
+}
+/*bg-church-floor-01-dm.png*/
+
+.Arena{             background-color:#7CFC00;background-image: none;}
+.Barge{             background-color:#CCFFFF;background-image: none;}
+.Battleground{      background-image: url('../../hoddm/images/tiles/bg-battlefield-floor-01-dm.png') !important;}
+.Boat{              background-image: url('../../hoddm/images/tiles/bg-boat-floor-01-dm.png') !important;}
+.Bridge{            background-color:#00FFFF;background-image: none;}
+.Castle{            background-image: url('../../hoddm/images/tiles/bg-castle-floor-01-dm.png') !important;}
+.Cave{              background-image: url('../../hoddm/images/tiles/bg-cave-floor-01-dm.png') !important;}
+.Cellar{            background-color:#00FF00;background-image: none;}
+.Church{            background-image: url('../../hoddm/images/tiles/bg-church-floor-01-dm.png') !important;}
+.CityMarket{        background-image: url('../../hoddm/images/tiles/bg-city-market-floor-01-dm.png') !important;}
+.CityDock{          background-image: url('../../hoddm/images/tiles/bg-city-docks-floor-01-dm.png') !important;}
+.CityAlley{         background-image: url('../../hoddm/images/tiles/bg-city-alley-floor-01-dm.png') !important;}
+.CityGates{         background-image: url('../../hoddm/images/tiles/bg-city-gates-floor-01-dm.png') !important;}
+.CobblestoneRoad{   background-color:#DFFF45;background-image: none;}
+.Crypt{             background-color:#FF8C00;background-image: none;}
+.Desert{            background-image: url('../../hoddm/images/tiles/bg-desert-floor-01-dm.png') !important;}
+.DirtRoad{          background-color:#FF7F50;background-image: none;}
+.Dungeon{           background-image: url('../../hoddm/images/tiles/bg-dungeon-floor-01-dm.png') !important;}
+.Farm{              background-color:#FF69B4;background-image: none;}
+.Forest{            background-image: url('../../hoddm/images/tiles/bg-forest-floor-01-dm.png') !important;}
+.Garden{            background-color:#FF00FF;background-image: none;}
+.Grassland{         background-image: url('../../hoddm/images/tiles/bg-grass-floor-01-dm.png') !important;}
+.Graveyard{         background-image: url('../../hoddm/images/tiles/bg-graveyard-floor-01-dm.png') !important;}
+.Heaven{            background-color:#00BFFF;background-image: none;}
+.Hills{             background-color:#55FFAA;background-image: none;}
+.Island{            background-image: url('../../hoddm/images/tiles/bg-island-floor-01-dm.png') !important;}
+.Jungle{            background-color:#A5FFAA;background-image: none;}
+.Labyrinth{         background-color:#F0E68C;background-image: none;}
+.Mines{             background-color:#FF4500;background-image: none;}
+.Mountain{          background-image: url('../../hoddm/images/tiles/bg-mountain-floor-01-dm.png') !important;}
+.MountainPass{      background-color:#FFEFD5;background-image: none;}
+.Ocean{             background-image: url('../../hoddm/images/tiles/bg-water-floor-01-dm.png') !important;}
+.Prison{            background-color:#FFFF00;background-image: none;}
+.Village{           background-image: url('../../hoddm/images/tiles/bg-village-floor-01-dm.png') !important;}
+.River{             background-image: url('../../hoddm/images/tiles/bg-river-floor-01-dm.png') !important;}
+.Road{              background-image: url('../../hoddm/images/tiles/bg-road-floor-01-dm.png') !important;}
+.Sewer{             background-image: url('../../hoddm/images/tiles/bg-sewer-floor-01-dm.png') !important;}
+.Shoal{             background-color:#FF0FFF;background-image: none;}
+.Shoreline{         background-color:#FFFFFF;background-image: none;}
+.Swamp{             background-image: url('../../hoddm/images/tiles/bg-swamp-floor-01-dm.png') !important;}
+.Tavern{            background-image: url('../../hoddm/images/tiles/bg-tavern-floor-01-dm.png') !important;}
+.Theater{           background-color:#00FA9A;background-image: none;}
+.Underworld{        background-color:#FF050F;background-image: none;}
+
+.GuildHallArena       {background-image: url('../../hoddm/images/tiles/bg-guild-arena-floor-01-dm.png');}
+.GuildHallBarracks    {background-image: url('../../hoddm/images/tiles/bg-guild-barracks-floor-01-dm.png');}
+.GuildHallCasino      {background-image: url('../../hoddm/images/tiles/bg-guild-casino-floor-01-dm.png');}
+.GuildHallCorridor    {background-image: url('../../hoddm/images/tiles/bg-guild-corridor-floor-01-dm.png');}
+.GuildHallEntrance    {background-image: url('../../hoddm/images/tiles/bg-guild-floor-01-dm.png');}
+.GuildHallForge       {background-image: url('../../hoddm/images/tiles/bg-guild-forge-floor-01-dm.png');}
+.GuildHallGallery     {background-image: url('../../hoddm/images/tiles/bg-guild-gallery-floor-01-dm.png');}
+.GuildHallGauntlet    {background-image: url('../../hoddm/images/tiles/bg-guild-floor-01-dm.png');}
+.GuildHallLibrary     {background-image: url('../../hoddm/images/tiles/bg-guild-library-floor-01-dm.png');}
+.GuildHallPrison      {background-image: url('../../hoddm/images/tiles/bg-guild-floor-01-dm.png');}
+.GuildHallReliquary   {background-image: url('../../hoddm/images/tiles/bg-guild-reliquary-floor-01-dm.png');}
+.GuildHallShrine      {background-image: url('../../hoddm/images/tiles/bg-guild-floor-01-dm.png');}
+.GuildHallVault       {background-image: url('../../hoddm/images/tiles/bg-guild-vault-floor-01-dm.png');}
+
+.grid-tile-inner {
+    margin: 10px;
+    width: 25px !important;
+    height: 25px !important;    
+    background-size: 25px 25px;
+}
+
+.dungeongrid-row .tile-icon {
+    width: 18px;
+    height: 18px;
+    position: relative;
+    /* background-color: red; */
+    background-size: 18px;
+}
+
+.tile-icon.topleft-icon {
+    top: 0;
+}
+.tile-icon.topright-icon {
+    top: 0;
+    left: 9px;
+}
+.tile-icon.bottomleft-icon {
+    top: 9px;
+    left: 0px;
+}
+.tile-icon.bottomright-icon {
+    top: 9px;
+    left: 9px;
+}
+
+.tile-icon.spawn-icon {background-image: none;}
+
+/* Top Left  - Spawn */
+.SpawnExample, .spawn .tile-icon.topleft-icon, 
+.active.spawn .tile-icon.topleft-icon {background-image: url('../../hoddm/images/icons/skull.png');}
+
+/* Top Right */
+.CheckpointExample, 
+.checkpoint .tile-icon.topright-icon {background-image: url('../../hoddm/images/icons/check.png');}
+.RespawnExample, 
+.respawn .tile-icon.topright-icon {background-image: url('../../hoddm/images/icons/respawn.png');display: block;}
+
+/* Bottom Left - Weather Only  */
+.active.normal .bottomleft-icon  ,.showWeather .normal .bottomleft-icon  {background-image: none;}
+.active.wet .bottomleft-icon     ,.showWeather .wet .bottomleft-icon     {background-image: url('../../hoddm/images/icons/Wet-white.png');}
+.active.cold .bottomleft-icon    ,.showWeather .cold .bottomleft-icon    {background-image: url('../../hoddm/images/icons/Cold-white.png');}
+.active.battle .bottomleft-icon  ,.showWeather .battle .bottomleft-icon  {background-image: url('../../hoddm/images/icons/Battle-white.png');}
+
+/* Bottom Right */
+.DestinationExample, 
+.dest .tile-icon.bottomright-icon {background-image: url('../../hoddm/images/icons/south-on.png');display: block;}
+
+.PortalExample, 
+.portal .tile-icon.bottomright-icon {background-image: url('../../hoddm/images/icons/circle-white.png');display: block;}
+
+.TreasureExample, 
+.treasure .tile-icon.bottomright-icon {background-image: url('../../hoddm/images/icons/treasure.png');display: block;}
+
+
+
+  .grid-tile.protected {
+    background-blend-mode: hard-light;
+    background-color: #00c0ff;
+      animation: none;
+    /*-webkit-animation: flash 1000ms infinite ease-in-out;
+    -moz-animation: flash 1000ms infinite ease-in-out;
+    -o-animation: flash 100ms infinite ease-in-out;
+    animation: flash 1000ms infinite ease-in-out;*/
+  }
+/* SELECTED TESTING */
+  .grid-tile.ui-selecting {
+    background-blend-mode: hard-light;
+    background-color: yellow;
+  }
+  .grid-tile.ui-selected {
+    background-blend-mode: hard-light;
+    background-color: limegreen !important;
+      animation: none !important;
+    /*-webkit-animation: flash 1000ms infinite ease-in-out;
+    -moz-animation: flash 1000ms infinite ease-in-out;
+    -o-animation: flash 100ms infinite ease-in-out;
+    animation: flash 1000ms infinite ease-in-out;*/
+  }
+
+  .dungeonXYField input {
+      width: 100px;
+  }

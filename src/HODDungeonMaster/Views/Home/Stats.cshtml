@@ -1,0 +1,404 @@
+﻿@using System
+@using System.Drawing
+@using System.Linq
+@using System.Threading.Tasks
+@using HODDungeonMaster.ViewModels.DungeonViews
+@using Newtonsoft.Json
+@using ThePit.Data.Tools
+@using ThePit.Logic
+@using ThePit.Logic.Battles
+@using ThePit.Logic.Dungeons
+@using ThePit.Logic.Fighters
+@{
+    ViewData["Title"] = "Dungeon Statistics";
+    var dungeonWorld = ViewData["DungeonWorldLoad"] as PitWorldTemplate;
+    var dungeon = ViewData["DungeonMap"] as PitDungeonTemplate;
+    string dataView = (string)ViewData["DataView"];
+    string returnUrl = string.Format("http://{0}/hoddm/home/stats", @Context.Request.Host);
+
+    int dietyCount = 0,
+    leaderCount = 0,
+    officerCount = 0,
+    minionCount = 0;
+
+    if (dungeonWorld.DungeonTemplates != null)
+    {        
+        foreach (var template in dungeonWorld.DungeonTemplates)
+        {
+            foreach (var node in template.GetAllNodes())
+            {
+                if (node.Spawn == null) { continue; }
+                switch (node.Spawn.AiType)
+                {
+                    case FighterAiType.Deity:
+                        dietyCount++;
+                        break;
+                    case FighterAiType.Officer:
+                        officerCount++;
+                        break;
+                    case FighterAiType.Leader:
+                        leaderCount++;
+                        break;
+                    case FighterAiType.Minion:
+                        minionCount++;
+                        break;
+                }         
+            }
+        }        
+    }
+}
+@functions
+{
+    public static SpawnList SList(ICollection<PitSpawnPoint> spawnpoints)
+    {
+        var spawnlist = new SpawnList();
+        foreach (var sp in spawnpoints)
+        {
+            spawnlist.AddFighter(sp);
+        }
+
+        return spawnlist;
+    }
+}
+<script type="text/javascript" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/buttons/1.2.4/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/buttons/1.2.4/js/buttons.flash.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/buttons/1.2.4/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="//cdn.datatables.net/buttons/1.2.4/js/buttons.print.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/buttons/1.2.4/css/buttons.dataTables.min.css">
+
+<style type="text/css">
+    p, th {
+        color: #fff;
+    }   
+    .container.body-content {
+    margin-left: 0px;
+    margin-right: 0px;
+    }
+</style>
+
+<h2>@ViewData["Title"].</h2>
+<h3>@ViewData["Message"]</h3>
+
+@if (dungeon == null)
+{
+
+    <p>Total Dungeon Count: @dungeonWorld.DungeonTemplates.Length</p>
+    <p>(SPAWNS) Total Dieties: @dietyCount / Leaders: @leaderCount / Officers: @officerCount / Minions: @minionCount</p>    
+
+    <table id="myTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>View Dungeon</th>
+                <th>Last Saved</th>
+                <th>Template ID</th>
+                <th>Dungeon Name</th>
+                <th>Level</th>
+                <th>Region</th>
+                <th>IsLocked</th>
+                <th>Author</th>
+                <th>Always QT</th>
+                <th>Respawn Count</th>
+                <th>QT Count</th>
+                <th>Quest Ready</th>
+                <th>Quest Faction</th>
+                <th>Treasure Node Count</th>
+                <th>Open Tile Count</th>
+                <th>Factions</th>
+                <th>Spawn Diety Count</th>
+                <th>Spawn Leader Count</th>
+                <th>Spawn Officer Count</th>
+                <th>Spawn Minion Count</th>
+                <th>Requires Key</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>View Dungeon</th>
+                <th>Last Saved</th>
+                <th>Template ID</th>
+                <th>Dungeon Name</th>
+                <th>Level</th>
+                <th>Region</th>
+                <th>IsLocked</th>
+                <th>Author</th>
+                <th>Always QT</th>
+                <th>Respawn Count</th>
+                <th>QT Count</th>
+                <th>Quest Ready</th>
+                <th>Quest Faction</th>
+                <th>Treasure Node Count</th>
+                <th>Open Tile Count</th>
+                <th>Factions</th>
+                <th>Spawn Diety Count</th>
+                <th>Spawn Leader Count</th>
+                <th>Spawn Officer Count</th>
+                <th>Spawn Minion Count</th>
+                <th>Requires Key</th>
+            </tr>
+        </tfoot>
+        <tbody>
+
+            @foreach (var temp in dungeonWorld.DungeonTemplates.OrderBy(t => t.Name))
+            {
+                string[] whiteList = temp.AccessWhitelist.Split(',');
+                PitDungeonTemplate tDungeon = dungeonWorld.GetDungeon(temp.TemplateId);
+                var factionList = new List<string>();
+                var spawnList = new List<PitSpawnPoint>();
+
+                int respawnCount = 0,
+                quickTravelCount = 0,
+                treasureRoomCount = 0,
+                closedTile = 0,
+                openTile = 0,
+                spawnDietyCount = 0,
+                spawnLeaderCount = 0,
+                spawnOfficerCount = 0,
+                spawnMinionCount = 0;
+
+                @foreach (var tile in tDungeon.Nodes)
+                {
+                    @foreach (var node in tile)
+                    {
+                        @if (node.Checkpoint == CheckpointType.Respawn)
+                        {
+                            respawnCount++;
+                        }
+                        @if (node.Checkpoint == CheckpointType.QuickTravel)
+                        {
+                            quickTravelCount++;
+                        }
+                        @if (node.TreasureRoom)
+                        {
+                            treasureRoomCount++;
+                        }
+                        @if (node.Map != MapType.NULL)
+                        {
+                            closedTile++;
+                        }
+                        @if (node.Spawn != null)
+                        {
+                            if (node.Spawn.AiType == FighterAiType.Deity)
+                            {
+                                spawnDietyCount++;
+                            }
+                            else if (node.Spawn.AiType == FighterAiType.Leader)
+                            {
+                                spawnLeaderCount++;
+                            }
+                            else if (node.Spawn.AiType == FighterAiType.Officer)
+                            {
+                                spawnOfficerCount++;
+                            }
+                            else if (node.Spawn.AiType == FighterAiType.Minion)
+                            {
+                                spawnMinionCount++;
+                            }
+
+                            spawnList.Add(node.Spawn);
+                            factionList.Add(node.Spawn.Faction.ToString());
+                        }
+                    }
+                }
+
+                string dungeonUrl = string.Format("http://{0}/hoddm{1}/{2}", @Context.Request.Host, @Context.Request.Path, @temp.TemplateId);
+                openTile = 256 - closedTile;
+                SpawnList sl = SList(spawnList);
+                string quest = "False";
+                string qFaction = string.Empty;
+                if (sl.isQuestReady())
+                {
+                    quest = "QuestReady";
+                    qFaction = sl.QuestFaction.ToString();                    
+                }
+
+                <tr>
+                    <td>
+                        <a class="btn btn-default" href="@dungeonUrl">View</a>
+                    </td>
+                    <td>@temp.LastSaveTimeUtc</td>
+                    <td>@temp.TemplateId</td>
+                    <td>@temp.Name</td>
+                    <td>@temp.Level</td>
+                    <td>@temp.Region</td>
+                    <td>@temp.IsLocked</td>
+                    <td>@temp.Author</td>
+                    <td>@temp.AlwaysQuickTravel</td>
+                    <td>@respawnCount</td>
+                    <td>@quickTravelCount</td>
+                    <td>@quest</td>
+                    <td>@qFaction</td>
+                    <td>@treasureRoomCount</td>
+                    <td>@openTile / 256</td>
+                    <td>
+                        <select>
+                            @foreach (var faction in factionList.Distinct())
+                            {
+                                <option>@faction</option>
+                            }
+                        </select>
+                    </td>
+                    <td>@spawnDietyCount</td>
+                    <td>@spawnLeaderCount</td>
+                    <td>@spawnOfficerCount</td>
+                    <td>@spawnMinionCount</td>
+                    <td>@(!string.IsNullOrEmpty(temp.RequiredGateKey))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+else if (dungeon != null && dataView == "Spawns")
+{
+    int dataX = (int)ViewData["DataX"];
+    int dataY = (int)ViewData["DataY"];
+    if (dataX >= 0 && dataY >= 0)
+    {
+        var nodes = @dungeon.Nodes;
+        PitSpawnPoint spawnData = nodes[dataX][dataY].Spawn;
+        string returnDungeonUrl = returnUrl + "/" + @dungeon.TemplateId;
+        
+
+        <a class="btn btn-default" href="@returnUrl">Back to Main</a>
+        <a class="btn btn-default" href="@returnDungeonUrl">Back to Dungeon</a>
+        <p>Dungeon Name: @dungeon.Name</p>
+        <p>Dungeon Level: @dungeon.Level</p>       
+
+        <table id="myTable" class="table table-striped table-bordered" cellspacing="0" width="50%">
+            <thead>
+                <tr>
+                    <th>Faction</th>
+                    <th>AI Type</th>
+                    <th>Leader Name Override</th>
+                    <th>Minion Name Override</th>
+                    <th>Kill Title</th>
+                    <th>Kill Key</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>@spawnData.Faction.ToString()</td>
+                    <td>@spawnData.AiType.ToString()</td>
+                    <td>@spawnData.LeaderNameOverride</td>
+                    <td>@spawnData.MinionNameOverride</td>
+                    <td>@spawnData.OnKillTitle</td>
+                    <td>@spawnData.OnKillGateKey</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+}
+else
+{
+
+    var nodes = @dungeon.Nodes;
+    <a class="btn btn-default" href="@returnUrl">Back to Main</a>
+    <p>Dungeon Name: @dungeon.Name</p>
+    <p>Level: @dungeon.Level</p>
+    <p>Required Kill Key: @dungeon.RequiredGateKey</p>
+    <!--<p>Factions: </p>-->
+    
+    <table id="myTable" class="display nowrap" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Tile Name</th>
+                <th>Spawn</th>
+                <th>Spawn AI Type</th>
+                <th>Faction</th>
+                <th>Location</th>
+                <th>Icon</th>
+                <th>Map Type</th>
+                <th>Weather Type</th>
+                <th>Is Hermit</th>
+                <th>Portal</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Tile Name</th>
+                <th>Spawn</th>
+                <th>Spawn AI Type</th>
+                <th>Faction</th>
+                <th>Location</th>
+                <th>Icon</th>
+                <th>Map Type</th>
+                <th>Weather Type</th>
+                <th>Is Hermit</th>
+                <th>Portal</th>
+            </tr>
+        </tfoot>
+        <tbody>
+            @for (int nodeX = @DungeonViewModel.DungeonMaxNodes; nodeX >= 0; nodeX--)
+            {
+                var node = nodes[nodeX];
+                @for (int nodeY = 0; nodeY < node.Length; nodeY++)
+                {
+                    var tile = node[nodeY];
+                    bool isHermit = tile.Map == MapType.NULL;
+                    int nX = nodeX + 1;
+                    int nY = nodeY + 1;
+
+                    string tileIcon = tile.Map.ToString();
+                    string tileDirection = string.Empty;
+
+                    if (tile.N) { tileDirection += " north"; }
+                    if (tile.S) { tileDirection += " south"; }
+                    if (tile.E) { tileDirection += " east"; }
+                    if (tile.W) { tileDirection += " west"; }
+
+                    <tr>
+                        <td>@tile.Name</td>
+                        <td>
+                            @if (tile.Spawn != null)
+                            {
+                                string spawnUrl = string.Format("http://{0}/hoddm{1}/Spawns_{2}_{3}",
+                                    @Context.Request.Host, @Context.Request.Path, nodeX, nodeY);
+                                <a class="btn btn-default" href="@spawnUrl">View Spawn</a>
+                            }
+                        </td>
+                        <td>
+                            @if (tile.Spawn != null)
+                            {
+                                @tile.Spawn.AiType.ToString();
+                            }
+                        </td>
+                        <td>
+                            @if (tile.Spawn != null)
+                            {
+                                @tile.Spawn.Faction.ToString();
+                            }
+                        </td>
+                        <td>[@nX/@nY]</td>
+                        <td align="center" style="background-color: #222"><div class="grid-tile normal @tileIcon @tileDirection" style="height: 40px;width:40px;"></div></td>
+                        <td>@tile.Map.ToString()</td>
+                        <td>@tile.Weather.ToString()</td>
+                        <td>@isHermit</td>
+                        <td>
+                            @if (tile.Portal != null)
+                            {
+                                PitDungeonTemplatePortal portal = tile.Portal;
+                                string port = string.Format("{0}/{1}/{2}", portal.TargetDungeonId, portal.TargetNodeX, portal.TargetNodeY);
+                                @port;
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<script>
+    $(function () {
+        $('#myTable').DataTable({
+            aLengthMenu: [[25, 50, 256], [25, 50, 'All']],
+            iDisplayLength: -1,
+            dom: 'Bfrtip',
+            buttons: ['copy', 'csv', 'excel', 'print']
+        });
+    });
+</script>
